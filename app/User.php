@@ -121,6 +121,55 @@ class User extends Authenticatable
     
     public function loadRelationshipCounts()
     {
-        $this->loadCount(['microposts', 'followings', 'followers']);
+        $this->loadCount(['microposts', 'followings', 'followers', 'favorites']);
+    }
+    
+    public function favorites()
+    {
+        return $this->belongsToMany(Micropost::class, 'favorites', 'user_id', 'micropost_id')->withTimestamps();
+    }
+    
+    public function favorite($micropost_id)
+    {
+        // すでにフォローしているかの確認
+        $exist = $this->is_favoriting($micropost_id);
+
+        if ($exist) {
+            // すでにフォローしていれば何もしない
+            return false;
+        } else {
+            // 未フォローであればフォローする
+
+            $this->favorites()->attach($micropost_id);
+            return true;
+        }
+    }
+
+    /**
+     * $userIdで指定されたユーザをアンフォローする。
+     *
+     * @param  int  $userId
+     * @return bool
+     */
+    public function unfavorite($micropost_id){
+        // すでにフォローしているかの確認
+        $exist = $this->is_favoriting($micropost_id);
+
+        if ($exist) {
+            // すでにフォローしていればフォローを外す
+            $this->favorites()->detach($micropost_id);
+            return true;
+        } else {
+            // 未フォローであれば何もしない
+            return false;
+        }
+    }
+    
+    public function is_favoriting($micropost_id)
+    {
+        // フォロー中ユーザの中に $userIdのものが存在するか
+        
+        //dd($this->favorites()->where('micropost_id', $micropost_id)->exists());
+        return $this->favorites()->where('micropost_id', $micropost_id)->exists();
     }
 }

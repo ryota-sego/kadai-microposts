@@ -1,9 +1,9 @@
-@extends('layouts,app')
+@extends('layouts.app')
 
 @section('content')
     <div class="row">
         <aside class="col-sm-4">
-            @incrude('users.card')
+            @include('users.card')
         </aside>
         <div class="col-sm-8">
             {{-- タブ --}}

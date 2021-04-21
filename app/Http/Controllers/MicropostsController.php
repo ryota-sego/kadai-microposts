@@ -15,10 +15,12 @@ class MicropostsController extends Controller
             // ユーザの投稿の一覧を作成日時の降順で取得
             // （後のChapterで他ユーザの投稿も取得するように変更しますが、現時点ではこのユーザの投稿のみ取得します）
             $microposts = $user->feed_microposts()->orderBy('created_at', 'desc')->paginate(10);
+            $favorites = $user->favorites();
 
             $data = [
                 'user' => $user,
                 'microposts' => $microposts,
+                'favorites' => $favorites,
             ];
         }
 
@@ -44,10 +46,10 @@ class MicropostsController extends Controller
     
     public function destroy($id){
         
-        $micropost = \App\Micropost::findOrFail($id);
+        $micropost = \App\Micropost::where('id', $id)->first();
         
         if(\Auth::id()==$micropost->user_id) {
-            $micropost::delete();
+            $micropost->delete();
         }
         
         return back();
